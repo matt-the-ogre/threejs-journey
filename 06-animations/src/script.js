@@ -14,8 +14,8 @@ scene.add(mesh)
 
 // Sizes
 const sizes = {
-    width: 800,
-    height: 600
+    width: window.innerWidth,
+    height: window.innerHeight
 }
 
 // Camera
@@ -28,8 +28,42 @@ const renderer = new THREE.WebGLRenderer({
     canvas: canvas
 })
 renderer.setSize(sizes.width, sizes.height)
-let startTime = performance.now()
-renderer.render(scene, camera)
-let endTime = performance.now()
-let duration = endTime - startTime
-console.log(`${duration} ms ${duration / 1000} s ${1000 / duration} fps`)
+
+// Animations
+// FPS Variables
+let lastTime = performance.now();
+let frameCount = 0;
+
+// Time
+let time = Date.now()
+
+const tick = () => {
+    // Time
+    const currentTime = Date.now()
+    const deltaTime = currentTime - time
+    time = currentTime
+
+    // console.log('tick')
+    // Update objects
+    mesh.rotation.y += 0.001 * deltaTime
+
+    // Render
+    const renderStartTime = performance.now();
+    renderer.render(scene, camera)
+    const renderEndTime = performance.now();
+    const lastRenderTime = renderEndTime - renderStartTime;
+    // Calculate FPS
+    const performanceTime = performance.now();
+    frameCount++;
+    // only update every second (1000 milliseconds)
+    if (performanceTime >= lastTime + 1000) {
+        document.getElementById("fps").innerText = `${frameCount} FPS ${(1000/lastRenderTime).toFixed(2)} fps ${lastRenderTime.toFixed(2)} ms`;
+        frameCount = 0;
+        lastTime = performanceTime;
+    }
+    
+    // Call tick again on the next frame
+    window.requestAnimationFrame(tick)
+}
+
+tick()
