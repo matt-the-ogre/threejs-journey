@@ -13,10 +13,30 @@ const scene = new THREE.Scene()
 /**
  * Object
  */
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '0x';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return parseInt(color, 16);
+}
+const randomColor = getRandomColor();
+// console.log(randomColor);
+// const randomColor = Math.floor(Math.random()*16777215).toString(16);
+// const hexColor = '0x' + randomColor;
+// console.log(hexColor);
+// // convert hexColor to rgb
+// import hexToRgb from 'hex-to-rgb';
+// const rgbColor = hexToRgb(hexColor);
+// convert rgbColor to THREE.Color
+// const color = new THREE.Color(rgbColor);
+
 const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+const material = new THREE.MeshBasicMaterial({ color: randomColor })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
+
 
 /**
  * Sizes
@@ -26,6 +46,43 @@ const sizes = {
     height: window.innerHeight
 }
 
+window.addEventListener('resize', () =>
+{
+    // Update sizes
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+    
+    // Update camera
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+    
+    // Update renderer
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+}
+)
+
+window.addEventListener('dblclick', () =>
+{
+    const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+    if(!fullscreenElement) {
+        if(canvas.requestFullscreen)
+        {
+            canvas.requestFullscreen();
+        }
+        else if(canvas.webkitRequestFullscreen)
+        {
+            canvas.webkitRequestFullscreen();
+        }
+    }
+    else {
+        if(document.exitFullscreen)
+            document.exitFullscreen();
+        else if(document.webkitExitFullscreen)
+            document.webkitExitFullscreen();
+    }
+}
+)
 /**
  * Camera
  */
