@@ -28,6 +28,24 @@ const material = new THREE.MeshBasicMaterial({ color: randomColor })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
+// Array to hold cubes
+const cubes = [];
+
+// Generate 1000 cubes
+for (let i = 0; i < 1000; i++) {
+  const size = Math.random() * 1.9 + 0.1; // Random size between 0.1 and 2.0
+  const geometry = new THREE.BoxGeometry(size, size, size);
+  const material = new THREE.MeshBasicMaterial({ color: getRandomColor() });
+  const cube = new THREE.Mesh(geometry, material);
+
+  cube.position.x = Math.random() * 10 - 5; // Random x position between -5 and 5
+  cube.position.y = Math.random() * 10 - 5; // Random y position between -5 and 5
+  cube.position.z = Math.random() * 10 - 5; // Random z position between -5 and 5
+
+  cubes.push(cube);
+  scene.add(cube);
+}
+
 /**
  * Sizes
  */
@@ -79,7 +97,7 @@ window.addEventListener('dblclick', () =>
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.z = 3
+camera.position.z = 15
 scene.add(camera)
 
 // Controls
