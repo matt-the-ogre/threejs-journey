@@ -22,21 +22,11 @@ function getRandomColor() {
     return parseInt(color, 16);
 }
 const randomColor = getRandomColor();
-// console.log(randomColor);
-// const randomColor = Math.floor(Math.random()*16777215).toString(16);
-// const hexColor = '0x' + randomColor;
-// console.log(hexColor);
-// // convert hexColor to rgb
-// import hexToRgb from 'hex-to-rgb';
-// const rgbColor = hexToRgb(hexColor);
-// convert rgbColor to THREE.Color
-// const color = new THREE.Color(rgbColor);
 
 const geometry = new THREE.BoxGeometry(1, 1, 1)
 const material = new THREE.MeshBasicMaterial({ color: randomColor })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
-
 
 /**
  * Sizes
@@ -83,6 +73,7 @@ window.addEventListener('dblclick', () =>
     }
 }
 )
+
 /**
  * Camera
  */
