@@ -205,8 +205,9 @@ const tick = () =>
     const performanceTime = performance.now();
     frameCount++;
     // only update every second (1000 milliseconds)
-    if (performanceTime >= lastTime + 1000) {
-        document.getElementById("fps").innerText = `${frameCount} FPS ${(1000/lastRenderTime).toFixed(2)} fps ${lastRenderTime.toFixed(2)} ms\ntriangles: ${triangleCount}`;
+    const updatems = 500;
+    if (performanceTime >= lastTime + updatems) {
+        document.getElementById("fps").innerText = `${frameCount*(1000/updatems)} FPS ${(1000/lastRenderTime).toFixed(2)} fps ${lastRenderTime.toFixed(2)} ms\ntriangles: ${triangleCount}`;
         frameCount = 0;
         lastTime = performanceTime;
     }
