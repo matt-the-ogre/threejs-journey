@@ -32,3 +32,7 @@
 # Debug files
 .nyc_output/
 coverage/
+
+# random azurite files
+**/azurite*
+**/__azurite*
