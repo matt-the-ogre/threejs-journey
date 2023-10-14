@@ -22,14 +22,14 @@ const scene = new THREE.Scene()
  */
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.3)
 scene.add(ambientLight)
-ambientLight.visible = false
+// ambientLight.visible = false
 const ambientLightGUIFolder = gui.addFolder('ambientLight')
 ambientLightGUIFolder.add(ambientLight, 'intensity').min(0).max(1).step(0.1)
 ambientLightGUIFolder.add(ambientLight, 'visible')
 
 const directionalLight = new THREE.DirectionalLight(0x0000ff, 0.5)
 directionalLight.position.set(2, 2, - 1)
-directionalLight.visible = false
+// directionalLight.visible = false
 scene.add(directionalLight)
 const directionalLightGUIFolder = gui.addFolder('directionalLight')
 directionalLightGUIFolder.add(directionalLight, 'intensity').min(0).max(1).step(0.01)
@@ -44,7 +44,7 @@ scene.add(directionalLightHelper)
 
 const hemisphereLight = new THREE.HemisphereLight(0xff0000, 0x0000ff, 0.5)
 scene.add(hemisphereLight)
-hemisphereLight.visible = false
+// hemisphereLight.visible = false
 const hemisphereLightGUIFolder = gui.addFolder('hemisphereLight')
 hemisphereLightGUIFolder.add(hemisphereLight, 'intensity').min(0).max(1).step(0.01)
 hemisphereLightGUIFolder.add(hemisphereLight, 'visible')
@@ -205,15 +205,27 @@ function getRandomColor() {
 }
 // a function to add a torus to the scene in a random position with a random material color
 
+let numTorus = 0
+
 function addRandomTorus() {
     const randomTorus = new THREE.Mesh(
-        new THREE.TorusGeometry(0.3, 0.2, 32, 64),
+        new THREE.TorusGeometry(0.3, 0.2, 256, 256),
         new THREE.MeshStandardMaterial({ color: getRandomColor() })
     )
     randomTorus.position.x = (Math.random() - 0.5) * 10
     randomTorus.position.y = (Math.random() - 0.5) * 10
     randomTorus.position.z = (Math.random() - 0.5) * 10
+    randomTorus.rotation.x = (Math.random() * Math.PI)
+    randomTorus.rotation.y = (Math.random() * Math.PI)
+    randomTorus.rotation.z = (Math.random() * Math.PI)
     scene.add(randomTorus)
+    numTorus++
+    // window.requestAnimationFrame(() =>
+    // {
+    //     randomTorus.rotation.x += Math.PI * 0.1
+    // }
+    // )
+
 }
 
 const plane = new THREE.Mesh(
@@ -248,6 +260,8 @@ window.addEventListener('resize', () =>
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 })
 
+// whenever the user clicks add a random torus
+
 /**
  * Camera
  */
@@ -271,6 +285,9 @@ const renderer = new THREE.WebGLRenderer({
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+console.log(renderer)
+console.log(renderer.info)
 
 /**
  * Animate
@@ -330,14 +347,14 @@ const tick = () =>
     const performanceTime = performance.now();
     frameCount++;
     // only update twice every second (500 milliseconds)
-    const updatems = 500;
+    const updatems = 250;
     if (performanceTime >= lastTime + updatems) {
         const framesPerSecondActual = frameCount*(1000/updatems)
         // if frames per second actual is above 59, add a random torus
-        if (framesPerSecondActual > 59) {
-            addRandomTorus()
-        }
-        document.getElementById("fps").innerText = `${framesPerSecondActual} FPS ${(1000/lastRenderTime).toFixed(2)} fps ${lastRenderTime.toFixed(2)} ms\ntriangles: ${renderer.info.render.triangles} lights: ${visibleLights}`;
+        // if (framesPerSecondActual > 59) {
+        //     addRandomTorus()
+        // }
+        document.getElementById("fps").innerText = `${framesPerSecondActual} FPS ${(1000/lastRenderTime).toFixed(2)} fps ${lastRenderTime.toFixed(2)} ms\ntriangles: ${renderer.info.render.triangles} lights: ${visibleLights} torii: ${numTorus} geometries: ${renderer.info.memory.geometries}`;
         frameCount = 0;
         lastTime = performanceTime;
     }
