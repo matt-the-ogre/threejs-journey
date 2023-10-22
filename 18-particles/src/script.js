@@ -14,16 +14,16 @@ const gui = new dat.GUI()
 const debugObject = {
     myFPSScreen: 0,
     myFPSRender: 0,
+    myRenderTime: 0,
     myTriangles: 0,
     myGeometries: 0,
-    // myNumParticles: 500,
 }
 const debugFolder = gui.addFolder('Debug')
 const myFPSScreenController = debugFolder.add(debugObject, 'myFPSScreen').name('screen FPS')
 const myFPSRenderController = debugFolder.add(debugObject, 'myFPSRender').name('render FPS')
+const myRenderTimeController = debugFolder.add(debugObject, 'myRenderTime').name('render time (ms)')
 const myTrianglesController = debugFolder.add(debugObject, 'myTriangles').name('Triangles')
 const myGeometriesController = debugFolder.add(debugObject, 'myGeometries').name('Geometries')
-// const myNumParticlesController = debugFolder.add(debugObject, 'myNumParticles').min(100).max(10000).step(100).name('Particles') // 500
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -35,13 +35,17 @@ const scene = new THREE.Scene()
  * Textures
  */
 const textureLoader = new THREE.TextureLoader()
+const particleTexture = textureLoader.load('/textures/particles/3.png') 
 
-// Particles
+/**
+ * Particles
+*/
+
 // const particlesGeometry = new THREE.SphereGeometry(1, 32, 32)
 // const particlesGeometry = new THREE.ConeGeometry(1, 1, 32, 32)
 const particlesGeometry = new THREE.BufferGeometry()
 // create 500 geometries for particles
-const count = 500000
+const count = 200000
 // a position array with 3 values for each vertex
 const positions = new Float32Array(count * 3)
 // a color array with 3 values for each vertex
@@ -49,6 +53,7 @@ const colors = new Float32Array(count * 3)
 // fill the arrays with random values
 for(let i = 0; i < count * 3; i++){
     positions[i] = (Math.random() - 0.5) * 10
+    // set a random colour for each vertex
     colors[i] = Math.random()
 }
 // set the attributes of the geometry
@@ -56,11 +61,15 @@ particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 
 particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
 
 const particlesMaterial = new THREE.PointsMaterial({
-    size: 0.02,
+    size: 0.2,
     sizeAttenuation: true,
-    // depthWrite: false,
-    // blending: THREE.AdditiveBlending,
-    // vertexColors: true
+    // color: '#ff88cc',
+    alphaMap: particleTexture,
+    transparent: true,
+    alphaTest: 0.001, // if alpha is less than 0.001, it will be discarded
+    depthWrite: false, 
+    blending: THREE.AdditiveBlending,
+    vertexColors: true
 })
 
 // Points
@@ -128,9 +137,21 @@ const tick = () =>
     const elapsedTime = clock.getElapsedTime()
 
     // Update particles
-    particles.rotation.y = elapsedTime * 0.2
-    particles.rotation.x = elapsedTime * 0.2
-    particles.rotation.z = elapsedTime * 0.2
+    // this rotates the entire particles geometry, not individual particles
+    // particles.rotation.y = elapsedTime * 0.02
+    // particles.rotation.x = elapsedTime * 0.02
+    // particles.rotation.z = elapsedTime * 0.2
+    // this goes through the particles positions array and updates each selectively
+    particlesGeometry.attributes.position.array.forEach((position, index) => {
+        // if the index is divisible by 3, it's the x position
+        if(index % 3 === 0){
+            let x = particlesGeometry.attributes.position.array[index]
+            particlesGeometry.attributes.position.array[index + 1] = Math.cos(elapsedTime + x)
+            // according to the lesson this is not a good way to do this
+        }
+    })
+    // this tells three.js that the positions have been updated
+    particlesGeometry.attributes.position.needsUpdate = true
 
     // Update controls
     controls.update()
@@ -140,20 +161,23 @@ const tick = () =>
     renderer.render(scene, camera)
     const renderEndTime = performance.now();
     const lastRenderTime = renderEndTime - renderStartTime;
+    // console.log(lastRenderTime);
 
     // Calculate FPS
     const performanceTime = performance.now();
     frameCount++;
-    // only update twice every second (500 milliseconds)
+    // only update four times every second (250 milliseconds between updates))
     const updatems = 250;
     if (performanceTime >= lastTime + updatems) {
         const framesPerSecondActual = frameCount*(1000/updatems)
         debugObject.myFPSScreen = framesPerSecondActual;
         debugObject.myFPSRender = (1000/lastRenderTime).toFixed(0);
+        debugObject.myRenderTime = lastRenderTime.toFixed(2);
         debugObject.myTriangles = renderer.info.render.triangles;
         debugObject.myGeometries = renderer.info.memory.geometries;
         myFPSScreenController.updateDisplay();
         myFPSRenderController.updateDisplay();
+        myRenderTimeController.updateDisplay();
         myTrianglesController.updateDisplay();
         myGeometriesController.updateDisplay();
         
